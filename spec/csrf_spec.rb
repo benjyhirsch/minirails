@@ -1,10 +1,10 @@
 require 'uri'
 require 'webrick'
-require 'phase9/controller_base'
+require 'controller_base'
 
-describe Phase9::ControllerBase do
+describe ControllerBase do
   before(:all) do
-    class CatsController < Phase9::ControllerBase
+    class CatsController < ControllerBase
       protect_from_forgery
 
       def action

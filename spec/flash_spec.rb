@@ -1,22 +1,22 @@
 require 'webrick'
-require 'phase8/flash'
-require 'phase8/controller_base'
+require 'flash'
+require 'controller_base'
 
-describe Phase8::Flash do
+describe Flash do
   let(:req) { WEBrick::HTTPRequest.new(Logger: nil) }
   let(:res) { WEBrick::HTTPResponse.new(HTTPVersion: '1.0') }
   let(:cook) { WEBrick::Cookie.new('_rails_lite_app_flash', { xyz: 'abc' }.to_json) }
 
   it "deserializes json cookie if one exists" do
     req.cookies << cook
-    flash = Phase8::Flash.new(req)
+    flash = Flash.new(req)
     flash['xyz'].should == 'abc'
   end
 
   describe "#store_flash" do
     context "without cookies in request" do
       before(:each) do
-        flash = Phase8::Flash.new(req)
+        flash = Flash.new(req)
         flash['first_key'] = 'first_val'
         flash.store_flash(res)
       end
@@ -39,12 +39,12 @@ describe Phase8::Flash do
       end
 
       it "reads the pre-existing cookie data into hash" do
-        flash = Phase8::Flash.new(req)
+        flash = Flash.new(req)
         flash['pho'].should == 'soup'
       end
 
       it "saves new but not old data to the cookie" do
-        flash = Phase8::Flash.new(req)
+        flash = Flash.new(req)
         flash['machine'] = 'mocha'
         flash.store_flash(res)
         cookie = res.cookies.find { |c| c.name == '_rails_lite_app_flash' }
@@ -56,9 +56,9 @@ describe Phase8::Flash do
   end
 end
 
-describe Phase8::ControllerBase do
+describe ControllerBase do
   before(:all) do
-    class CatsController < Phase8::ControllerBase
+    class CatsController < ControllerBase
     end
   end
   after(:all) { Object.send(:remove_const, "CatsController") }
@@ -69,7 +69,7 @@ describe Phase8::ControllerBase do
 
   describe "#flash" do
     it "returns a flash instance" do
-      expect(cats_controller.flash).to be_a(Phase8::Flash)
+      expect(cats_controller.flash).to be_a(Flash)
     end
 
     it "returns the same instance on successive invocations" do
