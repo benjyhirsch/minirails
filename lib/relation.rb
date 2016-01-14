@@ -1,7 +1,6 @@
 class Relation
   include Enumerable
 
-
   def initialize(klass, options = {})
     @klass = klass
     defaults = { where_params: [], join_params: [] }
@@ -13,30 +12,31 @@ class Relation
     to_a.each(&prc)
   end
 
+  def where(params)
+    options = @options.merge(where_params: @options[:where_params] + [params])
+    Relation.new(klass, options)
+  end
+
   def count
-    loaded? ? to_a.count : execute_count_query
+    loaded? ? to_a.count : DBConnection.execute(count_query).first["count"]
   end
 
   def first
-    loaded? ? to_a[0] : execute_first_query
+    loaded? ? to_a[0] : klass.new(DBConnection.execute(first_query).first)
   end
 
   def to_a
     load
-    arr
-  end
-
-  def reload
-    reset
-    load
-  end
-
-  def reset
-    # TODO
+    @arr
   end
 
   def load
-    arr ||= execute_main_query
+    reload unless loaded?
+    self
+  end
+
+  def reload
+    @arr = klass.parse_all(DBConnection.execute(to_sql))
     @loaded = true
     self
   end
@@ -44,7 +44,6 @@ class Relation
   def loaded?
     @loaded
   end
-
 
   def ==(other)
     case other
@@ -57,41 +56,30 @@ class Relation
     end
   end
 
+  def to_sql
+    ["SELECT\n  #{klass.table_name}.*", from_str, where_str].join("\n")
+  end
+
   private
   attr_accessor :klass, :options
 
-
-
-  def execute_main_query
-  end
-
-  def execute_count_query
-  end
-
-  def execute_first_query
-
-  end
-
-  def main_query
-    ["SELECT\n  #{klass.table_name}.*\n", @from_str, @where_str].join("\n")
-  end
-
   def first_query
-    main_query + "LIMIT 1"
+    to_sql + "\nLIMIT 1"
   end
 
   def count_query
-    ["SELECT\n  COUNT(*) AS count\n", @from_str, @where_str].join
+    ["SELECT\n  COUNT(*) AS count", from_str, where_str].join("\n")
   end
 
-  def build_query
-    build_where_str
-    build_from_str
+  def from_str
+    @from_str ||= "FROM\n  #{klass.table_name}" + join_str
   end
 
+  def where_str
+    @where_str ||= "WHERE\n " + where_substr(options[:where_params])
+  end
 
-
-  def build_where_str
+  def build_where_str(where_params)
     @bindings = []
     @where_str =
       if where_params.empty?
@@ -117,7 +105,7 @@ class Relation
     end
   end
 
-  def add_single_condition_where_substr(key,value)
+  def add_single_condition_where_substr(key, value)
     options = klass.assoc_options[name]
     if value.nil?
       @where_str += "#{key} IS NULL AND "
@@ -129,11 +117,6 @@ class Relation
 
   def where_params
     options[:where_params]
-  end
-
-  def build_from_str
-    @from_str = "FROM\n  #{klass.table_name}\n"
-    add_join_str
   end
 
   def add_join_str

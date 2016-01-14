@@ -51,7 +51,7 @@ describe "the symphony of things" do
 
     it "saves the session after rendering content" do
       ctrlr.update_session
-      cookie = res.cookies.find { |c| c.name == '_rails_lite_app' }
+      cookie = res.cookies.find { |c| c.name == '_minirails_app' }
       JSON.parse(cookie.value)["token"].should == "testing"
     end
   end

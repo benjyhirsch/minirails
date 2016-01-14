@@ -8,7 +8,7 @@ class Flash
 
   def initialize(req)
     cookie = req.cookies.find do |cookie|
-      cookie.name == '_rails_lite_app_flash'
+      cookie.name == '_minirails_app_flash'
     end
     @now = cookie ? JSON.parse(cookie.value) : Hash.new
     @next = Hash.new

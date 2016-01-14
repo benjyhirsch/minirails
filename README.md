@@ -1,16 +1,3 @@
-# Using The Specs
+# Minirails
 
-Some specs have been written to guide you towards the lite. There are
-rspec specs in the `spec` directory and demo servers for you to try
-in the `bin` directory.
-
-## Suggested Order
-
-0.  `bundle exec rspec spec/p02_controller_spec.rb`
-0.  `bundle exec rspec spec/p03_template_spec.rb`
-0.  `bundle exec rspec spec/p04_session_spec.rb`
-0.  `bundle exec rspec spec/p05_params_spec.rb`
-0.  `bundle exec rspec spec/p06_router_spec.rb`
-0.  `bundle exec rspec spec/p07_integration_spec.rb`
-
-Run `bundle exec rspec` to run all the spec files.
+Minirails is a web server MVC framework written in Ruby, inspired by Rails. It is a learning project to help me better understand what Rails and other web frameworks do and how they might work by reimplementing some of their functionality. That reimplemented functionality includes a base model with object-relational mapping, a base controller that finds and renders associated ERB templates, a router that invokes controller actions associated with the request path, an interface for storing session data in a cookie, and protection against CSRF attacks via requiring any submitted forms to include a hidden field with a token that matches one stored in the session cookie.
